@@ -18,12 +18,15 @@ class EuroEnglishConverter
       void convert();
       listspc::Iterator<char> resetToStartWord(listspc::Iterator<char> iter) const;
       listspc::Iterator<char> goToFirstLetter(listspc::Iterator<char> &iter);
-      void replaceWToV(listspc::Iterator<char> iter);
-      void conversionLoop(listspc::Iterator<char> &iter, listspc::Iterator<char> &endWord);
+      void replaceLetter(char currentLetter, char replacement, listspc::Iterator<char> iter);
+      void conversionLoop(int conversionNum, listspc::Iterator<char> iter);
+      void replaceC(listspc::Iterator<char> iter);
+      void replaceDualLetter(const string currentString, const char replacement, listspc::Iterator<char> iter);
+      void replaceDoubleToSingle(listspc::Iterator<char> iter);
+      void removeE(listspc::Iterator<char> iter);
 
       EuroEnglishConverter()
       {
-
       }
 };
 

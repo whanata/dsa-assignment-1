@@ -44,48 +44,145 @@ void EuroEnglishConverter::convert()
    listspc::Iterator<char> iter;
    listspc::Iterator<char> endWord;
    char lastChar = '0';
-   // int charCount = 0;
+   int conversionNum = 0;
 
-   for (endWord = this->goToFirstLetter(iter); endWord != this->wholeText.end(); endWord++)
+   this->wholeText.pushFront(' ');
+   this->wholeText.pushBack(' ');
+
+   while (conversionNum < 8) 
    {
-      cout << *endWord << "\n";
-      if (!(this->checkWordBoundary(*endWord)))
+      for (endWord = this->wholeText.begin(); endWord != this->wholeText.end(); endWord++)
       {
-         // charCount++;
-         endWord++;
-         if (this->checkWordBoundary(lastChar) || endWord == this->wholeText.end())
+         this->conversionLoop(conversionNum, endWord);
+      }
+      // cout << conversionNum << "\n";
+      conversionNum++;
+   }
+
+   this->wholeText.popFront();
+   this->wholeText.popBack();
+}
+
+void EuroEnglishConverter::conversionLoop(int conversionNum, listspc::Iterator<char> iter)
+{
+   switch (conversionNum)
+   {
+      case 0:
+         this->replaceC(iter);
+         break;
+      case 1:
+         this->replaceLetter('w', 'v', iter);
+         break;
+      case 2:
+         this->replaceDualLetter("ph", 'f', iter);
+         break;
+      case 3:
+         this->replaceDoubleToSingle(iter);
+         break;
+      // case 4:
+      //    break;
+      case 5:
+         this->replaceDualLetter("th", 'z', iter);
+         break;
+      case 6:
+         this->replaceDualLetter("ou", 'u', iter);
+         break;
+      case 7:
+         this->replaceDualLetter("ea", 'e', iter);
+         break;
+   }
+}
+
+void EuroEnglishConverter::removeE(listspc::Iterator<char> iter)
+{
+   listspc::Iterator<char> lastIter = iter;
+   listspc::Iterator<char> nextIter = iter;
+   int wordCount = 0;
+
+   nextIter++;
+   if (nextIter == this->wholeText.end() || this->checkWordBoundary(*nextIter))
+   {
+      lastIter--;
+      while (lastIter != this->wholeText.begin() && !(this->checkWordBoundary(*iter)))
+      {
+         wordCount++;
+      }
+   }
+}
+
+void EuroEnglishConverter::replaceDoubleToSingle(listspc::Iterator<char> iter)
+{
+   listspc::Iterator<char> nextIter = iter;
+
+   nextIter++;
+   if (nextIter != this->wholeText.end() && !(this->checkWordBoundary(*iter)))
+   {
+      if (tolower(*iter) == tolower(*nextIter))
+      {
+         this->wholeText.erase(nextIter);
+      }
+   }
+}
+
+void EuroEnglishConverter::replaceDualLetter(const string currentString, const char replacement, listspc::Iterator<char> iter)
+{
+   listspc::Iterator<char> nextIter = iter;
+
+   string possible1stLetter = string(1, currentString[0]);
+   possible1stLetter += (char)toupper(currentString[0]);
+   string possible2ndLetter = string(1, currentString[1]);
+   possible2ndLetter += (char)toupper(currentString[1]);
+
+   if (possible1stLetter.find(*iter) != string::npos)
+   {
+      nextIter++;
+      if (nextIter != this->wholeText.end())
+      {
+         if (possible2ndLetter.find(*nextIter) != string::npos)
          {
-            // cout << charCount << "\n";
-            endWord--;
-            endWord--;
-            this->conversionLoop(iter, endWord);
-            endWord++;
-            // charCount = 0;
-            iter = endWord;
+            this->wholeText.erase(nextIter);
+            this->replaceLetter(currentString[0], replacement, iter);
          }
       }
-      lastChar = *endWord;
    }
 }
 
-void EuroEnglishConverter::conversionLoop(listspc::Iterator<char> &iter, listspc::Iterator<char> &endWord)
+void EuroEnglishConverter::replaceC(listspc::Iterator<char> iter)
 {
-   int charCount = 0;
-   while (iter != endWord)
+   listspc::Iterator<char> nextIter = iter;
+   string possibleC = "cC";
+   string array = "eiyEIY";
+   if (possibleC.find(*iter) != string::npos)
    {
-      this->replaceWToV(iter);
-      charCount++;
-      iter++;
+      nextIter++;
+      if (nextIter != this->wholeText.end())
+      {
+         if (array.find(*iter) != string::npos)
+         {
+            this->replaceLetter('c', 's', iter);
+         }
+         else
+         { 
+            this->replaceLetter('c', 'k', iter);
+         }
+      }
+      else
+      {
+         this->replaceLetter('c', 'k', iter);
+      }
    }
-   // cout << charCount << "\n";
-   charCount = 0;
 }
 
-void EuroEnglishConverter::replaceWToV(listspc::Iterator<char> iter)
+// Always use lower case letters
+void EuroEnglishConverter::replaceLetter(char currentLetter, char replacement, listspc::Iterator<char> iter)
 {
-   if (*iter == 'w')
+   if (*iter == currentLetter)
    {
-      this->wholeText.replace(iter, 'v');
+      this->wholeText.replace(iter, replacement);
+   }
+   else if (*iter == toupper(currentLetter))
+   {
+      this->wholeText.replace(iter, toupper(replacement));
    }
 }
 
