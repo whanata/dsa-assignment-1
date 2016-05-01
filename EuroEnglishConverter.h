@@ -24,6 +24,8 @@ class EuroEnglishConverter
       void replaceDualLetter(const string currentString, const char replacement, listspc::Iterator<char> iter);
       void replaceDoubleToSingle(listspc::Iterator<char> iter);
       void removeE(listspc::Iterator<char> iter);
+      bool endOfWord(listspc::Iterator<char> iter);
+      void replaceEd(listspc::Iterator<char> iter);
 
       EuroEnglishConverter()
       {

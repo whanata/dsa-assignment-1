@@ -92,6 +92,7 @@ void EuroEnglishConverter::conversionLoop(int conversionNum, listspc::Iterator<c
          this->replaceDualLetter("ea", 'e', iter);
          break;
       case 8:
+         this->replaceEd(iter);
          break;
    }
 }
@@ -102,38 +103,70 @@ void EuroEnglishConverter::removeE(listspc::Iterator<char> iter)
    string eString = "eE";
    int wordCount = 0;
 
-   if (this->checkWordBoundary(*lastIter))
+   if (this->endOfWord(iter))
    {
       lastIter--;
-      if (lastIter != this->wholeText.end())
+      while (!(this->checkWordBoundary(*lastIter)))
       {
-         while (!(this->checkWordBoundary(*lastIter)))
+         wordCount++;
+         lastIter--;
+      }
+      if (wordCount > 3)
+      {
+         iter--;
+         if (eString.find(*iter) != string::npos)
          {
-            wordCount++;
-            lastIter--;
-         }
-         if (wordCount > 3)
-         {
-            iter--;
-            if (eString.find(*iter) != string::npos)
-            {
-               this->wholeText.erase(iter);
-            }
+            this->wholeText.erase(iter);
          }
       }
    }
 }
 
+bool EuroEnglishConverter::endOfWord(listspc::Iterator<char> iter)
+{
+   listspc::Iterator<char> lastIter = iter;
+   if (this->checkWordBoundary(*lastIter))
+   {
+      lastIter--;
+      if (lastIter != this->wholeText.end() && !(this->checkWordBoundary(*lastIter)))
+      {
+         return true;
+      }
+   }
+   return false;
+}
+
+void EuroEnglishConverter::replaceEd(listspc::Iterator<char> iter)
+{
+   listspc::Iterator<char> lastIter = iter;
+   string eString = "eE";
+   string dString = "dD";
+
+   if (this->endOfWord(lastIter))
+   {
+      lastIter--;
+      if (lastIter != this->wholeText.end() && dString.find(*lastIter) != string::npos)
+      {
+         lastIter--;
+         if (lastIter != this->wholeText.end() && eString.find(*lastIter) != string::npos)
+         {
+            this->wholeText.erase(lastIter);
+         }
+      }
+   }
+
+}
+
 void EuroEnglishConverter::replaceDoubleToSingle(listspc::Iterator<char> iter)
 {
-   listspc::Iterator<char> nextIter = iter;
+   listspc::Iterator<char> lastIter = iter;
 
-   nextIter++;
-   if (nextIter != this->wholeText.end() && !(this->checkWordBoundary(*iter)))
+   lastIter--;
+   if (lastIter != this->wholeText.end() && !(this->checkWordBoundary(*iter)))
    {
-      if (tolower(*iter) == tolower(*nextIter))
+      if (tolower(*iter) == tolower(*lastIter))
       {
-         this->wholeText.erase(nextIter);
+         this->wholeText.erase(lastIter);
       }
    }
 }
@@ -171,7 +204,7 @@ void EuroEnglishConverter::replaceC(listspc::Iterator<char> iter)
       nextIter++;
       if (nextIter != this->wholeText.end())
       {
-         if (array.find(*iter) != string::npos)
+         if (array.find(*nextIter) != string::npos)
          {
             this->replaceLetter('c', 's', iter);
          }
