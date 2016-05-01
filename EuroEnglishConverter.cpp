@@ -49,7 +49,7 @@ void EuroEnglishConverter::convert()
    this->wholeText.pushFront(' ');
    this->wholeText.pushBack(' ');
 
-   while (conversionNum < 8) 
+   while (conversionNum < 9) 
    {
       for (endWord = this->wholeText.begin(); endWord != this->wholeText.end(); endWord++)
       {
@@ -79,8 +79,9 @@ void EuroEnglishConverter::conversionLoop(int conversionNum, listspc::Iterator<c
       case 3:
          this->replaceDoubleToSingle(iter);
          break;
-      // case 4:
-      //    break;
+      case 4:
+         this->removeE(iter);
+         break;
       case 5:
          this->replaceDualLetter("th", 'z', iter);
          break;
@@ -90,22 +91,35 @@ void EuroEnglishConverter::conversionLoop(int conversionNum, listspc::Iterator<c
       case 7:
          this->replaceDualLetter("ea", 'e', iter);
          break;
+      case 8:
+         break;
    }
 }
 
 void EuroEnglishConverter::removeE(listspc::Iterator<char> iter)
 {
    listspc::Iterator<char> lastIter = iter;
-   listspc::Iterator<char> nextIter = iter;
+   string eString = "eE";
    int wordCount = 0;
 
-   nextIter++;
-   if (nextIter == this->wholeText.end() || this->checkWordBoundary(*nextIter))
+   if (this->checkWordBoundary(*lastIter))
    {
       lastIter--;
-      while (lastIter != this->wholeText.begin() && !(this->checkWordBoundary(*iter)))
+      if (lastIter != this->wholeText.end())
       {
-         wordCount++;
+         while (!(this->checkWordBoundary(*lastIter)))
+         {
+            wordCount++;
+            lastIter--;
+         }
+         if (wordCount > 3)
+         {
+            iter--;
+            if (eString.find(*iter) != string::npos)
+            {
+               this->wholeText.erase(iter);
+            }
+         }
       }
    }
 }
