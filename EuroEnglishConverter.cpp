@@ -43,61 +43,64 @@ void EuroEnglishConverter::convert()
 {
    listspc::Iterator<char> iter;
    listspc::Iterator<char> endWord;
-   char lastChar = '0';
-   int conversionNum = 0;
 
    this->wholeText.pushFront(' ');
    this->wholeText.pushBack(' ');
 
-   while (conversionNum < 9) 
+   for (endWord = this->wholeText.begin(); endWord != this->wholeText.end(); endWord++)
    {
-      for (endWord = this->wholeText.begin(); endWord != this->wholeText.end(); endWord++)
+      if (this->conversionLoop(endWord))
       {
-         this->conversionLoop(conversionNum, endWord);
+         continue;
       }
-      // cout << conversionNum << "\n";
-      conversionNum++;
    }
 
    this->wholeText.popFront();
    this->wholeText.popBack();
 }
 
-void EuroEnglishConverter::conversionLoop(int conversionNum, listspc::Iterator<char> iter)
+bool EuroEnglishConverter::conversionLoop(listspc::Iterator<char> iter)
 {
-   switch (conversionNum)
+   if (this->replaceC(iter))
    {
-      case 0:
-         this->replaceC(iter);
-         break;
-      case 1:
-         this->replaceLetter('w', 'v', iter);
-         break;
-      case 2:
-         this->replaceDualLetter("ph", 'f', iter);
-         break;
-      case 3:
-         this->replaceDoubleToSingle(iter);
-         break;
-      case 4:
-         this->removeE(iter);
-         break;
-      case 5:
-         this->replaceDualLetter("th", 'z', iter);
-         break;
-      case 6:
-         this->replaceDualLetter("ou", 'u', iter);
-         break;
-      case 7:
-         this->replaceDualLetter("ea", 'e', iter);
-         break;
-      case 8:
-         this->replaceEd(iter);
-         break;
+      return true;
    }
+   else if (this->replaceLetter('w', 'v', iter))
+   {
+      return true;
+   }
+   else if (this->replaceDualLetter("ph", 'f', iter))
+   {
+      return true;
+   }
+   else if (this->replaceDoubleToSingle(iter))
+   {
+      return true;
+   }
+   else if (this->removeE(iter))
+   {
+      return true;
+   }
+   else if (this->replaceDualLetter("th", 'z', iter))
+   {
+      return true;
+   }
+   else if (this->replaceDualLetter("ou", 'u', iter))
+   {
+      return true;
+   }
+   else if (this->replaceDualLetter("ea", 'e', iter))
+   {
+      return true;
+   }
+   else if (this->replaceEd(iter))
+   {
+      return true;
+   }
+   return true;
 }
 
-void EuroEnglishConverter::removeE(listspc::Iterator<char> iter)
+bool EuroEnglishConverter::removeE(listspc::Iterator<char> iter)
 {
    listspc::Iterator<char> lastIter = iter;
    string eString = "eE";
@@ -117,9 +120,11 @@ void EuroEnglishConverter::removeE(listspc::Iterator<char> iter)
          if (eString.find(*iter) != string::npos)
          {
             this->wholeText.erase(iter);
+            return true;
          }
       }
    }
+   return false;
 }
 
 bool EuroEnglishConverter::endOfWord(listspc::Iterator<char> iter)
@@ -136,7 +141,7 @@ bool EuroEnglishConverter::endOfWord(listspc::Iterator<char> iter)
    return false;
 }
 
-void EuroEnglishConverter::replaceEd(listspc::Iterator<char> iter)
+bool EuroEnglishConverter::replaceEd(listspc::Iterator<char> iter)
 {
    listspc::Iterator<char> lastIter = iter;
    string eString = "eE";
@@ -151,13 +156,14 @@ void EuroEnglishConverter::replaceEd(listspc::Iterator<char> iter)
          if (lastIter != this->wholeText.end() && eString.find(*lastIter) != string::npos)
          {
             this->wholeText.erase(lastIter);
+            return true;
          }
       }
    }
-
+   return false;
 }
 
-void EuroEnglishConverter::replaceDoubleToSingle(listspc::Iterator<char> iter)
+bool EuroEnglishConverter::replaceDoubleToSingle(listspc::Iterator<char> iter)
 {
    listspc::Iterator<char> lastIter = iter;
 
@@ -167,11 +173,13 @@ void EuroEnglishConverter::replaceDoubleToSingle(listspc::Iterator<char> iter)
       if (tolower(*iter) == tolower(*lastIter))
       {
          this->wholeText.erase(lastIter);
+         return true;
       }
    }
+   return false;
 }
 
-void EuroEnglishConverter::replaceDualLetter(const string currentString, const char replacement, listspc::Iterator<char> iter)
+bool EuroEnglishConverter::replaceDualLetter(const string currentString, const char replacement, listspc::Iterator<char> iter)
 {
    listspc::Iterator<char> nextIter = iter;
 
@@ -189,12 +197,14 @@ void EuroEnglishConverter::replaceDualLetter(const string currentString, const c
          {
             this->wholeText.erase(nextIter);
             this->replaceLetter(currentString[0], replacement, iter);
+            return true;
          }
       }
    }
+   return false;
 }
 
-void EuroEnglishConverter::replaceC(listspc::Iterator<char> iter)
+bool EuroEnglishConverter::replaceC(listspc::Iterator<char> iter)
 {
    listspc::Iterator<char> nextIter = iter;
    string possibleC = "cC";
@@ -207,30 +217,37 @@ void EuroEnglishConverter::replaceC(listspc::Iterator<char> iter)
          if (array.find(*nextIter) != string::npos)
          {
             this->replaceLetter('c', 's', iter);
+            return true;
          }
          else
          { 
             this->replaceLetter('c', 'k', iter);
+            return true;
          }
       }
       else
       {
          this->replaceLetter('c', 'k', iter);
+         return true;
       }
    }
+   return false;
 }
 
 // Always use lower case letters
-void EuroEnglishConverter::replaceLetter(char currentLetter, char replacement, listspc::Iterator<char> iter)
+bool EuroEnglishConverter::replaceLetter(char currentLetter, char replacement, listspc::Iterator<char> iter)
 {
    if (*iter == currentLetter)
    {
       this->wholeText.replace(iter, replacement);
+      return true;
    }
    else if (*iter == toupper(currentLetter))
    {
       this->wholeText.replace(iter, toupper(replacement));
+      return true;
    }
+   return false;
 }
 
 listspc::Iterator<char> EuroEnglishConverter::goToFirstLetter(listspc::Iterator<char> &iter)
