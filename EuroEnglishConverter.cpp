@@ -61,15 +61,7 @@ void EuroEnglishConverter::convert()
 
 bool EuroEnglishConverter::conversionLoop(listspc::Iterator<char> iter)
 {
-   if (this->replaceC(iter))
-   {
-      return true;
-   }
-   else if (this->replaceLetter('w', 'v', iter))
-   {
-      return true;
-   }
-   else if (this->replaceDualLetter("ph", 'f', iter))
+   if (this->replaceLetter('w', 'v', iter))
    {
       return true;
    }
@@ -77,7 +69,7 @@ bool EuroEnglishConverter::conversionLoop(listspc::Iterator<char> iter)
    {
       return true;
    }
-   else if (this->removeE(iter))
+   else if (this->replaceDualLetter("ph", 'f', iter))
    {
       return true;
    }
@@ -89,7 +81,15 @@ bool EuroEnglishConverter::conversionLoop(listspc::Iterator<char> iter)
    {
       return true;
    }
-   else if (this->replaceDualLetter("ea", 'e', iter))
+   else if (this->replaceEa(iter))
+   {
+      return true;
+   }
+   else if (this->replaceC(iter))
+   {
+      return true;
+   }
+   else if (this->removeE(iter))
    {
       return true;
    }
@@ -179,24 +179,46 @@ bool EuroEnglishConverter::replaceDoubleToSingle(listspc::Iterator<char> iter)
    return false;
 }
 
+bool EuroEnglishConverter::replaceEa(listspc::Iterator<char> iter)
+{
+   listspc::Iterator<char> lastIter = iter;
+
+   string eString = "eE";
+   string aString = "aA";
+
+   if (aString.find(*iter) != string::npos)
+   {
+      lastIter--;
+      if (lastIter != this->wholeText.end())
+      {
+         if (eString.find(*lastIter) != string::npos)
+         {
+            this->wholeText.erase(iter);
+            return true;
+         }
+      }
+   }
+   return false;
+}
+
 bool EuroEnglishConverter::replaceDualLetter(const string currentString, const char replacement, listspc::Iterator<char> iter)
 {
-   listspc::Iterator<char> nextIter = iter;
+   listspc::Iterator<char> lastIter = iter;
 
    string possible1stLetter = string(1, currentString[0]);
    possible1stLetter += (char)toupper(currentString[0]);
    string possible2ndLetter = string(1, currentString[1]);
    possible2ndLetter += (char)toupper(currentString[1]);
 
-   if (possible1stLetter.find(*iter) != string::npos)
+   if (possible2ndLetter.find(*iter) != string::npos)
    {
-      nextIter++;
-      if (nextIter != this->wholeText.end())
+      lastIter--;
+      if (lastIter != this->wholeText.end())
       {
-         if (possible2ndLetter.find(*nextIter) != string::npos)
+         if (possible1stLetter.find(*lastIter) != string::npos)
          {
-            this->wholeText.erase(nextIter);
-            this->replaceLetter(currentString[0], replacement, iter);
+            this->wholeText.erase(iter);
+            this->replaceLetter(currentString[0], replacement, lastIter);
             return true;
          }
       }
@@ -287,7 +309,7 @@ void EuroEnglishConverter::printWholeText() const
       cout << *iter;
    }
 
-   cout << "\n\nHash: " << this->getHash(this->wholeText) << "\n";
+   cout << "\nHash: " << this->getHash(this->wholeText) << "\n";
 }
 
 bool EuroEnglishConverter::checkWordBoundary(char character) const

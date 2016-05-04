@@ -26,6 +26,7 @@ class EuroEnglishConverter
       bool removeE(listspc::Iterator<char> iter);
       bool endOfWord(listspc::Iterator<char> iter);
       bool replaceEd(listspc::Iterator<char> iter);
+      bool replaceEa(listspc::Iterator<char> iter);
 
       EuroEnglishConverter()
       {
