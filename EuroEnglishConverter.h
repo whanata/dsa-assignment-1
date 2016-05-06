@@ -16,21 +16,18 @@ class EuroEnglishConverter
       unsigned short getHash(const listspc::List<char> &charList) const;
       void printWholeText() const;
       void convert();
-      listspc::Iterator<char> resetToStartWord(listspc::Iterator<char> iter) const;
-      listspc::Iterator<char> goToFirstLetter(listspc::Iterator<char> &iter);
       bool replaceLetter(char currentLetter, char replacement, listspc::Iterator<char> iter);
       void conversionLoop(listspc::Iterator<char> iter);
       bool replaceC(listspc::Iterator<char> iter);
-      bool replaceDualLetter(const string currentString, const char replacement, listspc::Iterator<char> iter);
+      bool replaceDualLetter(const string currentString, 
+         const char replacement, 
+         listspc::Iterator<char> iter);
       bool replaceDoubleToSingle(listspc::Iterator<char> iter);
       bool removeE(listspc::Iterator<char> iter);
       bool endOfWord(listspc::Iterator<char> iter);
       bool replaceEd(listspc::Iterator<char> iter);
       bool replaceEa(listspc::Iterator<char> iter);
 
-      EuroEnglishConverter()
-      {
-      }
 };
 
 #endif

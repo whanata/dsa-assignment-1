@@ -14,7 +14,7 @@ template <typename dataType> struct Node
    Node() : prev(NULL), next(NULL) {}
 
    Node(const dataType& dataItem, Node *prevPtr, Node *nextPtr) : 
-       data(dataItem), prev(prevPtr), next(nextPtr) 
+      data(dataItem), prev(prevPtr), next(nextPtr) 
    {   
       // we are now pointing to Nodes on either side
       // get them pointing to this Node

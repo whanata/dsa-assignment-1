@@ -66,53 +66,41 @@ void EuroEnglishConverter::conversionLoop(listspc::Iterator<char> iter)
       if (this->replaceLetter('w', 'v', iter))
       {
          changesMade = true;
-         // cout << "1";
       }
       else if (this->replaceDoubleToSingle(iter))
       {
          changesMade = true;
-         // cout << "2";
       }
       else if (this->replaceDualLetter("ph", 'f', iter))
       {
          changesMade = true;
-         // cout << "3";
       }
       else if (this->replaceDualLetter("th", 'z', iter))
       {
          changesMade = true;
-         // cout << "4";
       }
       else if (this->replaceDualLetter("ou", 'u', iter))
       {
          changesMade = true;
-         // cout << "5";
       }
       else if (this->replaceEa(iter))
       {
          changesMade = true;
-         // cout << "6";
       }
       else if (this->replaceC(iter))
       {
          changesMade = true;
-         // cout << "7";
       }
       else if (this->removeE(iter))
       {
          changesMade = true;
-         // cout << "8";
       }
       else if (this->replaceEd(iter))
       {
          changesMade = true;
-         // cout << "9";
       }
       counter ++;
    } while (changesMade == true);
-   // cout << *iter << "\n";
-   // cout << counter << "\n";
-   // cout << "happen\n";
 }
 
 bool EuroEnglishConverter::removeE(listspc::Iterator<char> iter)
@@ -216,7 +204,9 @@ bool EuroEnglishConverter::replaceEa(listspc::Iterator<char> iter)
    return false;
 }
 
-bool EuroEnglishConverter::replaceDualLetter(const string currentString, const char replacement, listspc::Iterator<char> iter)
+bool EuroEnglishConverter::replaceDualLetter(const string currentString, 
+   const char replacement, 
+   listspc::Iterator<char> iter)
 {
    listspc::Iterator<char> nextIter = iter;
 
@@ -272,7 +262,9 @@ bool EuroEnglishConverter::replaceC(listspc::Iterator<char> iter)
 }
 
 // Always use lower case letters
-bool EuroEnglishConverter::replaceLetter(char currentLetter, char replacement, listspc::Iterator<char> iter)
+bool EuroEnglishConverter::replaceLetter(char currentLetter, 
+   char replacement, 
+   listspc::Iterator<char> iter)
 {
    if (*iter == currentLetter)
    {
@@ -285,33 +277,6 @@ bool EuroEnglishConverter::replaceLetter(char currentLetter, char replacement, l
       return true;
    }
    return false;
-}
-
-listspc::Iterator<char> EuroEnglishConverter::goToFirstLetter(listspc::Iterator<char> &iter)
-{
-   listspc::Iterator<char> endWord;
-
-   for (endWord = this->wholeText.begin(); endWord != this->wholeText.end(); endWord++)
-   {
-      if (!(this->checkWordBoundary(*endWord)))
-      {
-         iter = endWord;
-         break;
-      }
-   }
-
-   return endWord;
-}
-
-listspc::Iterator<char> EuroEnglishConverter::resetToStartWord(listspc::Iterator<char> iter) const
-{
-   while (!(this->checkWordBoundary(*iter)))
-   {
-      iter--;
-   }
-   iter++;
-
-   return iter;
 }
 
 void EuroEnglishConverter::printWholeText() const
