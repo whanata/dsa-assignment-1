@@ -5,8 +5,6 @@
 
 namespace listspc
 {
-   // forward class declaration
-   template <typename dataType> class List;
 
    #include "Node.h"
    #include "Iterator.h"
@@ -27,9 +25,6 @@ namespace listspc
          /*****************************************\
             Iterator friendship and functions
          \*****************************************/
-
-         friend class Iterator<dataType>;
-         friend class ConstIterator<dataType>;
 
          Iterator<dataType> begin() 
          {

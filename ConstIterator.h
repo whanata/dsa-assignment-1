@@ -10,8 +10,6 @@
 
 template <typename dataType> class ConstIterator
 {
-   friend class List<dataType>;
-
    private:
       const List<dataType> *parent;
       const Node<dataType> *current;

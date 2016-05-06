@@ -10,8 +10,6 @@
 
 template <typename dataType> class Iterator
 {
-   friend class List<dataType>;
-
    private:
       List<dataType> *parent;
       Node<dataType> *current;
