@@ -49,55 +49,70 @@ void EuroEnglishConverter::convert()
 
    for (endWord = this->wholeText.begin(); endWord != this->wholeText.end(); endWord++)
    {
-      if (this->conversionLoop(endWord))
-      {
-         continue;
-      }
+      this->conversionLoop(endWord);
    }
 
    this->wholeText.popFront();
    this->wholeText.popBack();
 }
 
-bool EuroEnglishConverter::conversionLoop(listspc::Iterator<char> iter)
+void EuroEnglishConverter::conversionLoop(listspc::Iterator<char> iter)
 {
-   if (this->replaceLetter('w', 'v', iter))
+   bool changesMade;
+   int counter = 0;
+   do 
    {
-      return true;
-   }
-   else if (this->replaceDoubleToSingle(iter))
-   {
-      return true;
-   }
-   else if (this->replaceDualLetter("ph", 'f', iter))
-   {
-      return true;
-   }
-   else if (this->replaceDualLetter("th", 'z', iter))
-   {
-      return true;
-   }
-   else if (this->replaceDualLetter("ou", 'u', iter))
-   {
-      return true;
-   }
-   else if (this->replaceEa(iter))
-   {
-      return true;
-   }
-   else if (this->replaceC(iter))
-   {
-      return true;
-   }
-   else if (this->removeE(iter))
-   {
-      return true;
-   }
-   else if (this->replaceEd(iter))
-   {
-      return true;
-   }
-   return true;
+      changesMade = false;
+      if (this->replaceLetter('w', 'v', iter))
+      {
+         changesMade = true;
+         // cout << "1";
+      }
+      else if (this->replaceDoubleToSingle(iter))
+      {
+         changesMade = true;
+         // cout << "2";
+      }
+      else if (this->replaceDualLetter("ph", 'f', iter))
+      {
+         changesMade = true;
+         // cout << "3";
+      }
+      else if (this->replaceDualLetter("th", 'z', iter))
+      {
+         changesMade = true;
+         // cout << "4";
+      }
+      else if (this->replaceDualLetter("ou", 'u', iter))
+      {
+         changesMade = true;
+         // cout << "5";
+      }
+      else if (this->replaceEa(iter))
+      {
+         changesMade = true;
+         // cout << "6";
+      }
+      else if (this->replaceC(iter))
+      {
+         changesMade = true;
+         // cout << "7";
+      }
+      else if (this->removeE(iter))
+      {
+         changesMade = true;
+         // cout << "8";
+      }
+      else if (this->replaceEd(iter))
+      {
+         changesMade = true;
+         // cout << "9";
+      }
+      counter ++;
+   } while (changesMade == true);
+   // cout << *iter << "\n";
+   // cout << counter << "\n";
+   // cout << "happen\n";
 }
 
 bool EuroEnglishConverter::removeE(listspc::Iterator<char> iter)
@@ -165,14 +180,14 @@ bool EuroEnglishConverter::replaceEd(listspc::Iterator<char> iter)
 
 bool EuroEnglishConverter::replaceDoubleToSingle(listspc::Iterator<char> iter)
 {
-   listspc::Iterator<char> lastIter = iter;
+   listspc::Iterator<char> nextIter = iter;
 
-   lastIter--;
-   if (lastIter != this->wholeText.end() && !(this->checkWordBoundary(*iter)))
+   nextIter++;
+   if (nextIter != this->wholeText.end() && !(this->checkWordBoundary(*iter)))
    {
-      if (tolower(*iter) == tolower(*lastIter))
+      if (tolower(*iter) == tolower(*nextIter))
       {
-         this->wholeText.erase(lastIter);
+         this->wholeText.erase(nextIter);
          return true;
       }
    }
@@ -181,19 +196,19 @@ bool EuroEnglishConverter::replaceDoubleToSingle(listspc::Iterator<char> iter)
 
 bool EuroEnglishConverter::replaceEa(listspc::Iterator<char> iter)
 {
-   listspc::Iterator<char> lastIter = iter;
+   listspc::Iterator<char> nextIter = iter;
 
    string eString = "eE";
    string aString = "aA";
 
-   if (aString.find(*iter) != string::npos)
+   if (eString.find(*iter) != string::npos)
    {
-      lastIter--;
-      if (lastIter != this->wholeText.end())
+      nextIter++;
+      if (nextIter != this->wholeText.end())
       {
-         if (eString.find(*lastIter) != string::npos)
+         if (aString.find(*nextIter) != string::npos)
          {
-            this->wholeText.erase(iter);
+            this->wholeText.erase(nextIter);
             return true;
          }
       }
@@ -203,22 +218,22 @@ bool EuroEnglishConverter::replaceEa(listspc::Iterator<char> iter)
 
 bool EuroEnglishConverter::replaceDualLetter(const string currentString, const char replacement, listspc::Iterator<char> iter)
 {
-   listspc::Iterator<char> lastIter = iter;
+   listspc::Iterator<char> nextIter = iter;
 
    string possible1stLetter = string(1, currentString[0]);
    possible1stLetter += (char)toupper(currentString[0]);
    string possible2ndLetter = string(1, currentString[1]);
    possible2ndLetter += (char)toupper(currentString[1]);
 
-   if (possible2ndLetter.find(*iter) != string::npos)
+   if (possible1stLetter.find(*iter) != string::npos)
    {
-      lastIter--;
-      if (lastIter != this->wholeText.end())
+      nextIter++;
+      if (nextIter != this->wholeText.end())
       {
-         if (possible1stLetter.find(*lastIter) != string::npos)
+         if (possible2ndLetter.find(*nextIter) != string::npos)
          {
-            this->wholeText.erase(iter);
-            this->replaceLetter(currentString[0], replacement, lastIter);
+            this->wholeText.erase(nextIter);
+            this->replaceLetter(currentString[0], replacement, iter);
             return true;
          }
       }

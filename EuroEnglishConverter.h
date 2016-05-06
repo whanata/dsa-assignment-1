@@ -19,7 +19,7 @@ class EuroEnglishConverter
       listspc::Iterator<char> resetToStartWord(listspc::Iterator<char> iter) const;
       listspc::Iterator<char> goToFirstLetter(listspc::Iterator<char> &iter);
       bool replaceLetter(char currentLetter, char replacement, listspc::Iterator<char> iter);
-      bool conversionLoop(listspc::Iterator<char> iter);
+      void conversionLoop(listspc::Iterator<char> iter);
       bool replaceC(listspc::Iterator<char> iter);
       bool replaceDualLetter(const string currentString, const char replacement, listspc::Iterator<char> iter);
       bool replaceDoubleToSingle(listspc::Iterator<char> iter);
