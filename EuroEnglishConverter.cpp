@@ -2,6 +2,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <cctype>
+#include <list>
 
 using namespace std;
 
@@ -11,11 +12,7 @@ void EuroEnglishConverter::loadFile(string file)
 {
    ifstream fin;
    char character = 0;
-   bool gotSize = false;
-   int counter = 0;
-   int wordBoundaryCounter = 0;
 
-   // open stream to file
    fin.open(file.c_str(), ios::in);
    if (!fin) 
    {
@@ -26,7 +23,7 @@ void EuroEnglishConverter::loadFile(string file)
    {
       while (fin.get(character)) 
       {
-         this->wholeText.pushBack(character);
+         this->wholeText.push_back(character);
       }
    }
    catch (exception &ex)
@@ -35,31 +32,29 @@ void EuroEnglishConverter::loadFile(string file)
       fin.close();
    }
 
-   // we have finished reading the file, close the stream to it
    fin.close();
 }
 
 void EuroEnglishConverter::convert()
 {
-   listspc::Iterator<char> iter;
-   listspc::Iterator<char> endWord;
+   list<char>::iterator iter;
+   list<char>::iterator endWord;
 
-   this->wholeText.pushFront(' ');
-   this->wholeText.pushBack(' ');
+   this->wholeText.push_front(' ');
+   this->wholeText.push_back(' ');
 
    for (endWord = this->wholeText.begin(); endWord != this->wholeText.end(); endWord++)
    {
       this->conversionLoop(endWord);
    }
 
-   this->wholeText.popFront();
-   this->wholeText.popBack();
+   this->wholeText.pop_front();
+   this->wholeText.pop_back();
 }
 
-void EuroEnglishConverter::conversionLoop(listspc::Iterator<char> iter)
+void EuroEnglishConverter::conversionLoop(list<char>::iterator iter)
 {
    bool changesMade;
-   int counter = 0;
    do 
    {
       changesMade = false;
@@ -99,16 +94,17 @@ void EuroEnglishConverter::conversionLoop(listspc::Iterator<char> iter)
       {
          changesMade = true;
       }
-      counter ++;
    } while (changesMade == true);
 }
 
-bool EuroEnglishConverter::removeE(listspc::Iterator<char> iter)
+bool EuroEnglishConverter::removeE(list<char>::iterator iter)
 {
-   listspc::Iterator<char> lastIter = iter;
+   // Remove e if the word is longer than 3 letters
+   list<char>::iterator lastIter = iter;
    string eString = "eE";
    int wordCount = 0;
 
+   iter--;
    if (this->endOfWord(iter))
    {
       lastIter--;
@@ -119,7 +115,6 @@ bool EuroEnglishConverter::removeE(listspc::Iterator<char> iter)
       }
       if (wordCount > 3)
       {
-         iter--;
          if (eString.find(*iter) != string::npos)
          {
             this->wholeText.erase(iter);
@@ -130,13 +125,13 @@ bool EuroEnglishConverter::removeE(listspc::Iterator<char> iter)
    return false;
 }
 
-bool EuroEnglishConverter::endOfWord(listspc::Iterator<char> iter)
+bool EuroEnglishConverter::endOfWord(const list<char>::iterator iter)
 {
-   listspc::Iterator<char> lastIter = iter;
-   if (this->checkWordBoundary(*lastIter))
+   list<char>::iterator nextIter = iter;
+   if (!(this->checkWordBoundary(*iter)))
    {
-      lastIter--;
-      if (lastIter != this->wholeText.end() && !(this->checkWordBoundary(*lastIter)))
+      nextIter++;
+      if (nextIter != this->wholeText.end() && this->checkWordBoundary(*nextIter))
       {
          return true;
       }
@@ -144,21 +139,22 @@ bool EuroEnglishConverter::endOfWord(listspc::Iterator<char> iter)
    return false;
 }
 
-bool EuroEnglishConverter::replaceEd(listspc::Iterator<char> iter)
+bool EuroEnglishConverter::replaceEd(list<char>::iterator iter)
 {
-   listspc::Iterator<char> lastIter = iter;
+   // Replace ed in the end of the word to d
+   list<char>::iterator nextIter = iter;
    string eString = "eE";
    string dString = "dD";
 
-   if (this->endOfWord(lastIter))
+   if (eString.find(*iter) != string::npos)
    {
-      lastIter--;
-      if (lastIter != this->wholeText.end() && dString.find(*lastIter) != string::npos)
+      nextIter++;
+      if (nextIter != this->wholeText.end() && this->endOfWord(nextIter))
       {
-         lastIter--;
-         if (lastIter != this->wholeText.end() && eString.find(*lastIter) != string::npos)
+         if (dString.find(*nextIter) != string::npos)
          {
-            this->wholeText.erase(lastIter);
+            this->wholeText.erase(nextIter);
+            this->replaceLetter('e', 'd', iter);
             return true;
          }
       }
@@ -166,14 +162,15 @@ bool EuroEnglishConverter::replaceEd(listspc::Iterator<char> iter)
    return false;
 }
 
-bool EuroEnglishConverter::replaceDoubleToSingle(listspc::Iterator<char> iter)
+bool EuroEnglishConverter::replaceDoubleToSingle(list<char>::iterator iter)
 {
-   listspc::Iterator<char> nextIter = iter;
+   // Replace double letters with a single letter
+   list<char>::iterator nextIter = iter;
 
    nextIter++;
    if (nextIter != this->wholeText.end() && !(this->checkWordBoundary(*iter)))
    {
-      if (tolower(*iter) == tolower(*nextIter))
+      if (isalpha(*iter) && tolower(*iter) == tolower(*nextIter))
       {
          this->wholeText.erase(nextIter);
          return true;
@@ -182,9 +179,10 @@ bool EuroEnglishConverter::replaceDoubleToSingle(listspc::Iterator<char> iter)
    return false;
 }
 
-bool EuroEnglishConverter::replaceEa(listspc::Iterator<char> iter)
+bool EuroEnglishConverter::replaceEa(list<char>::iterator iter)
 {
-   listspc::Iterator<char> nextIter = iter;
+   // Replace ea to e
+   list<char>::iterator nextIter = iter;
 
    string eString = "eE";
    string aString = "aA";
@@ -206,9 +204,10 @@ bool EuroEnglishConverter::replaceEa(listspc::Iterator<char> iter)
 
 bool EuroEnglishConverter::replaceDualLetter(const string currentString, 
    const char replacement, 
-   listspc::Iterator<char> iter)
+   list<char>::iterator iter)
 {
-   listspc::Iterator<char> nextIter = iter;
+   // Replace 2 letter in the first parameter with 2 letters in the second parameter
+   list<char>::iterator nextIter = iter;
 
    string possible1stLetter = string(1, currentString[0]);
    possible1stLetter += (char)toupper(currentString[0]);
@@ -231,9 +230,11 @@ bool EuroEnglishConverter::replaceDualLetter(const string currentString,
    return false;
 }
 
-bool EuroEnglishConverter::replaceC(listspc::Iterator<char> iter)
+bool EuroEnglishConverter::replaceC(list<char>::iterator iter)
 {
-   listspc::Iterator<char> nextIter = iter;
+   // Replace c with s if there is e, i or y after it
+   // Else replace c with k
+   list<char>::iterator nextIter = iter;
    string possibleC = "cC";
    string array = "eiyEIY";
    if (possibleC.find(*iter) != string::npos)
@@ -264,16 +265,16 @@ bool EuroEnglishConverter::replaceC(listspc::Iterator<char> iter)
 // Always use lower case letters
 bool EuroEnglishConverter::replaceLetter(char currentLetter, 
    char replacement, 
-   listspc::Iterator<char> iter)
+   list<char>::iterator iter)
 {
    if (*iter == currentLetter)
    {
-      this->wholeText.replace(iter, replacement);
+      *iter = replacement;
       return true;
    }
    else if (*iter == toupper(currentLetter))
    {
-      this->wholeText.replace(iter, toupper(replacement));
+      *iter = toupper(replacement);
       return true;
    }
    return false;
@@ -281,8 +282,8 @@ bool EuroEnglishConverter::replaceLetter(char currentLetter,
 
 void EuroEnglishConverter::printWholeText() const
 {
-   listspc::ConstIterator<char> iter;
-   listspc::ConstIterator<char> endIter = this->wholeText.end();
+   list<char>::const_iterator iter;
+   list<char>::const_iterator endIter = this->wholeText.end();
 
    for (iter = this->wholeText.begin(); iter != endIter; iter++)
    {
@@ -297,10 +298,10 @@ bool EuroEnglishConverter::checkWordBoundary(char character) const
    return (!isalnum(character));
 }
 
-unsigned short EuroEnglishConverter::getHash(const listspc::List<char> &charList) const
+unsigned short EuroEnglishConverter::getHash(const list<char> &charList) const
 {
    unsigned short shift, hash = 0;
-   listspc::ConstIterator<char> itr;
+   list<char>::const_iterator itr;
 
    for (itr = charList.begin(); itr != charList.end(); itr++)
    {
